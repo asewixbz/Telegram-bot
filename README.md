@@ -63,6 +63,7 @@ docker compose down
 - `DB_PATH` — путь к SQLite базе
 - `MANAGER_CHAT_ID` — чат или личный чат менеджера для уведомлений
 - `LEAD_WEBHOOK_URL` — URL для `lead_completed` webhook
+- `TG_PROXY_URL` — proxy URL для Telegram API, если VPS не может достучаться до `api.telegram.org` напрямую
 - `ADMIN_IDS` — список Telegram user ID через запятую для команд `/leads`, `/hot`, `/warm`, `/cold`, `/lead`, `/note`, `/done`
 - `ENTRY_SOURCE` — источник по умолчанию, если `/start` пришёл без payload
 - `UTM_SOURCE` — UTM source по умолчанию
@@ -94,15 +95,26 @@ docker compose down
 
 - `prod.env.example` — минимальный пример переменных для VPS;
 - `scripts/preflight.sh` — быстрый чек перед запуском;
-- `scripts/backup_sqlite.sh` — ручной бэкап SQLite базы.
+- `scripts/backup_sqlite.sh` — ручной бэкап SQLite базы;
+- `TG_PROXY_URL` — proxy для Telegram API, если ваш VPS не может достучаться до `api.telegram.org` напрямую.
+
+Поддерживаются HTTP(S) и SOCKS5-прокси.
 
 Рекомендуемый порядок на VPS:
 
 ```bash
 cp prod.env.example .env
+# заполни BOT_TOKEN / MANAGER_CHAT_ID / ADMIN_IDS / TG_PROXY_URL
 bash scripts/preflight.sh
 mkdir -p data backups
 docker compose up -d --build
+```
+
+Примеры proxy URL:
+
+```text
+TG_PROXY_URL=http://user:pass@host:port
+TG_PROXY_URL=socks5://user:pass@host:port
 ```
 
 Бэкап базы вручную:
