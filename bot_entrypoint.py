@@ -3,10 +3,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from urllib.parse import urlparse
 
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiohttp_socks import ProxyConnector
 
 import main
 
@@ -25,12 +23,6 @@ def _proxy_url() -> str | None:
 def _build_session(proxy_url: str | None) -> AiohttpSession | None:
     if not proxy_url:
         return None
-
-    scheme = urlparse(proxy_url).scheme.lower()
-    if scheme.startswith("socks"):
-        connector = ProxyConnector.from_url(proxy_url)
-        return AiohttpSession(connector=connector)
-
     return AiohttpSession(proxy=proxy_url)
 
 
