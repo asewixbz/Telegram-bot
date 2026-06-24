@@ -63,27 +63,33 @@ docker compose down
 - `DB_PATH` — путь к SQLite базе
 - `MANAGER_CHAT_ID` — чат или личный чат менеджера для уведомлений
 - `LEAD_WEBHOOK_URL` — URL для `lead_completed` webhook
+- `TG_PROXY_URL` — proxy URL для Telegram API, если VPS не может достучаться до `api.telegram.org` напрямую
 - `ADMIN_IDS` — список Telegram user ID через запятую для команд `/leads`, `/hot`, `/warm`, `/cold`, `/lead`, `/note`, `/done`
 - `ENTRY_SOURCE` — источник по умолчанию, если `/start` пришёл без payload
 - `UTM_SOURCE` — UTM source по умолчанию
 - `UTM_CAMPAIGN` — UTM campaign по умолчанию
 - `RESPONSE_ETA` — текст для сообщения на финальном шаге
 
-## Логика старта
+## Proxy support
 
-Команда `/start` создаёт новую заявку или предлагает продолжить незавершённую.
-Дополнительно бот принимает payload вида:
+Если ваш VPS не может достучаться до `api.telegram.org` напрямую, можно задать `TG_PROXY_URL`.
 
-```text
-/start video_01|youtube|migration_video_a
-```
+Поддерживаются HTTP(S) и SOCKS5-прокси.
 
-или
+Примеры:
 
 ```text
-/start entry_source=video_01&utm_source=youtube&utm_campaign=migration_video_a
+TG_PROXY_URL=http://user:pass@host:port
+TG_PROXY_URL=socks5://user:pass@host:port
 ```
 
-## Хранение данных
+## Production hardening
 
-Данные заявок, файлов и комментариев хранятся в SQLite и не теряются между перезапусками.
+Рекомендуемый порядок на VPS:
+
+```bash
+cp .env.example .env
+# заполни BOT_TOKEN / MANAGER_CHAT_ID / ADMIN_IDS / TG_PROXY_URL
+mkdir -p data
+docker compose up -d --build
+```
