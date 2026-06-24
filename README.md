@@ -87,3 +87,26 @@ docker compose down
 ## Хранение данных
 
 Данные заявок, файлов и комментариев хранятся в SQLite и не теряются между перезапусками.
+
+## Production hardening
+
+Для продакшена в репозитории есть дополнительные файлы:
+
+- `prod.env.example` — минимальный пример переменных для VPS;
+- `scripts/preflight.sh` — быстрый чек перед запуском;
+- `scripts/backup_sqlite.sh` — ручной бэкап SQLite базы.
+
+Рекомендуемый порядок на VPS:
+
+```bash
+cp prod.env.example .env
+bash scripts/preflight.sh
+mkdir -p data backups
+docker compose up -d --build
+```
+
+Бэкап базы вручную:
+
+```bash
+bash scripts/backup_sqlite.sh
+```
