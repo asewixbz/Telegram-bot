@@ -11,7 +11,93 @@ MVP Telegram-бота для миграционных услуг:
 - приём документов после завершения анкеты;
 - админ-команды для менеджера.
 
-## Запуск локально
+## Быстрый старт на Ubuntu через Docker
+
+Ниже — самый простой вариант установки: сначала ставим Docker, потом одной цепочкой скачиваем репозиторий, создаём `.env` и запускаем бота.
+
+### 1) Установить Docker и Git
+
+```bash
+sudo apt update && sudo apt install -y git curl ca-certificates docker.io docker-compose-plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+newgrp docker
+```
+
+### 2) Скачать репозиторий
+
+```bash
+git clone https://github.com/Asewixbz/Telegram-bot.git
+cd Telegram-bot
+```
+
+Если Docker уже установлен, можно сразу выполнить короткий вариант:
+
+```bash
+git clone https://github.com/Asewixbz/Telegram-bot.git && cd Telegram-bot
+```
+
+### 3) Создать `.env` и добавить токены/ключи
+
+Сначала можно скопировать шаблон:
+
+```bash
+cp .env.example .env
+```
+
+Дальше удобно заполнить секреты через переменные окружения и сразу записать их в `.env`:
+
+```bash
+export BOT_TOKEN="123456:ABCDEF"
+export MANAGER_CHAT_ID="123456789"
+export LEAD_WEBHOOK_URL="https://example.com/lead-completed"
+export TG_PROXY_URL=""
+export ADMIN_IDS="123456789,987654321"
+
+cat > .env <<EOF
+BOT_TOKEN=$BOT_TOKEN
+DB_PATH=data/leads.sqlite3
+MANAGER_CHAT_ID=$MANAGER_CHAT_ID
+LEAD_WEBHOOK_URL=$LEAD_WEBHOOK_URL
+TG_PROXY_URL=$TG_PROXY_URL
+ADMIN_IDS=$ADMIN_IDS
+ENTRY_SOURCE=video_01
+UTM_SOURCE=youtube
+UTM_CAMPAIGN=migration_video_a
+RESPONSE_ETA=в течение 15 минут
+EOF
+```
+
+Если нужно поменять только отдельные значения, можно сделать это точечно:
+
+```bash
+sed -i 's|^BOT_TOKEN=.*|BOT_TOKEN=123456:ABCDEF|' .env
+sed -i 's|^MANAGER_CHAT_ID=.*|MANAGER_CHAT_ID=123456789|' .env
+sed -i 's|^LEAD_WEBHOOK_URL=.*|LEAD_WEBHOOK_URL=https://example.com/lead-completed|' .env
+sed -i 's|^TG_PROXY_URL=.*|TG_PROXY_URL=socks5://user:pass@host:port|' .env
+sed -i 's|^ADMIN_IDS=.*|ADMIN_IDS=123456789,987654321|' .env
+```
+
+### 4) Создать папку для данных и запустить бота
+
+```bash
+mkdir -p data
+docker compose up -d --build
+```
+
+### 5) Смотреть логи и остановить контейнер
+
+```bash
+docker compose logs -f
+```
+
+```bash
+docker compose down
+```
+
+Контейнер хранит SQLite-базу в `./data`, поэтому данные сохраняются между перезапусками.
+
+## Запуск локально без Docker
 
 1. Скопируйте `.env.example` в `.env` и заполните переменные.
 2. Установите зависимости:
@@ -25,37 +111,6 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-
-## Запуск через Docker / VPS
-
-Этот вариант подходит для обычного VPS с Docker и Docker Compose.
-
-1. Скопируйте `.env.example` в `.env` и заполните переменные.
-2. Создайте папку для данных:
-
-```bash
-mkdir -p data
-```
-
-3. Соберите и запустите контейнер:
-
-```bash
-docker compose up -d --build
-```
-
-4. Посмотреть логи:
-
-```bash
-docker compose logs -f
-```
-
-5. Остановить контейнер:
-
-```bash
-docker compose down
-```
-
-Контейнер хранит SQLite-базу в `./data`, поэтому данные сохраняются между перезапусками.
 
 ## Переменные окружения
 
@@ -89,7 +144,7 @@ TG_PROXY_URL=socks5://user:pass@host:port
 
 ```bash
 cp .env.example .env
-# заполни BOT_TOKEN / MANAGER_CHAT_ID / ADMIN_IDS / TG_PROXY_URL
+# заполните BOT_TOKEN / MANAGER_CHAT_ID / ADMIN_IDS / TG_PROXY_URL
 mkdir -p data
 docker compose up -d --build
 ```
